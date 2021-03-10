@@ -11,7 +11,8 @@ namespace Automation_interface.model
 {
     class Util
     {
-        public  static Random rand = new Random();
+        public static Random rand = new Random();
+        public static List<Replacer> usedValue = new List<Replacer>();
 
         public static string StripTags(string html)
         {
@@ -42,9 +43,9 @@ namespace Automation_interface.model
         }
 
 
-        public static Rule getRule(string fileName)
+        public static KeyWords getRule(string fileName)
         {
-            Rule rule = new Rule();
+            KeyWords rule = new KeyWords();
             using (var rd = new StreamReader(fileName))
             {
                 while (!rd.EndOfStream)
@@ -78,7 +79,7 @@ namespace Automation_interface.model
                         {
                             Replacer re = new Replacer();
                             re.tagInhtml = splits[0].Trim().ToLower();
-                            re.value = splits[1].Trim();
+                            re.value = splits[1].Trim('\"').Replace("@", ",");
                             if (splits.Length > 2)
                             {
                                 for (int i = 2; i < splits.Length; i++)
@@ -99,5 +100,43 @@ namespace Automation_interface.model
             }
             return rule;
         }
+
+        public static void loadUsedKeywordValue() {
+            using (var rd = new StreamReader(@"UsedKeyword/usedKeyword.csv")) {
+                string[] headers = rd.ReadLine().Split(',');
+                if (headers.Length > 0) {
+                    while (!rd.EndOfStream)
+                    {
+                        string[] values = rd.ReadLine().Split(',');
+                        for (int i = 0; i < headers.Length; i++) {
+                            Replacer r = new Replacer();
+                            r.tagInhtml = headers[i];
+                            r.value = values[i];
+                            usedValue.Add(r);
+                        }
+                        
+                    }
+                }
+                
+            }
+        }
+        
+        public static void saveUsedKeyWordValue() {
+            if (usedValue.Count > 0)
+            {
+                using (var sw = new StreamWriter(@"UsedKeyword/usedKeyword.csv"))
+                {
+                    for (var i = 0; i <= usedValue.Count; i++)
+                    {
+                        sw.WriteLine("Error_Flag = 'FOR_IMPORT' and location_type =   'Home' and batch_num = {0}", i);
+                    }
+                }
+            }
+            else {
+                File.WriteAllText(@"UsedKeyword/usedKeyword.csv", "");
+            }
+            
+        }
+
     }
 }

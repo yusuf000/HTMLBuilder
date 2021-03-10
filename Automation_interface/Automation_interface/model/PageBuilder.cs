@@ -23,7 +23,7 @@ namespace Automation_interface.model
         private string poster;
         private string countTest = "Posts: ";
         private DateTime currentTime;
-        private model.Rule rule;
+        private model.KeyWords rule;
         private string metaTeg = "";
         private Dictionary<string, string> questionRule;
         private Dictionary<string, Replacer> usedReplacers;
@@ -43,7 +43,7 @@ namespace Automation_interface.model
             
         }
 
-        public string createpage(List<string> templete, model.Rule r, DateTime cur, bool isVote)
+        public string createpage(List<string> templete, model.KeyWords r, DateTime cur, bool isVote)
         {
             this.page = mainHeader;
             rule = r;

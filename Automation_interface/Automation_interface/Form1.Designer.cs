@@ -31,10 +31,10 @@ namespace Automation_interface
         {
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.SRT_button = new System.Windows.Forms.Button();
-            this.ruleTempletsFile = new System.Windows.Forms.TextBox();
             this.SKT_button = new System.Windows.Forms.Button();
             this.keywordTemplets = new System.Windows.Forms.TextBox();
+            this.SRT_button = new System.Windows.Forms.Button();
+            this.ruleTemplets = new System.Windows.Forms.TextBox();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.Run = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -59,45 +59,45 @@ namespace Automation_interface
             this.textBox1.Size = new System.Drawing.Size(175, 30);
             this.textBox1.TabIndex = 1;
             // 
-            // SRT_button
-            // 
-            this.SRT_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SRT_button.Location = new System.Drawing.Point(43, 160);
-            this.SRT_button.Name = "SRT_button";
-            this.SRT_button.Size = new System.Drawing.Size(236, 56);
-            this.SRT_button.TabIndex = 2;
-            this.SRT_button.Text = "Select Rules Temples";
-            this.SRT_button.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.SRT_button.UseVisualStyleBackColor = true;
-            this.SRT_button.Click += new System.EventHandler(this.SRT_button_Click);
-            // 
-            // ruleTempletsFile
-            // 
-            this.ruleTempletsFile.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ruleTempletsFile.Location = new System.Drawing.Point(297, 175);
-            this.ruleTempletsFile.Name = "ruleTempletsFile";
-            this.ruleTempletsFile.Size = new System.Drawing.Size(221, 30);
-            this.ruleTempletsFile.TabIndex = 3;
-            // 
             // SKT_button
             // 
             this.SKT_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SKT_button.Location = new System.Drawing.Point(43, 240);
+            this.SKT_button.Location = new System.Drawing.Point(43, 160);
             this.SKT_button.Name = "SKT_button";
             this.SKT_button.Size = new System.Drawing.Size(236, 56);
-            this.SKT_button.TabIndex = 4;
-            this.SKT_button.Text = "Select keywords Temples";
+            this.SKT_button.TabIndex = 2;
+            this.SKT_button.Text = "Select Keyword Templates";
             this.SKT_button.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.SKT_button.UseVisualStyleBackColor = true;
-            this.SKT_button.Click += new System.EventHandler(this.SKT_button_Click);
+            this.SKT_button.Click += new System.EventHandler(this.SRT_button_Click);
             // 
             // keywordTemplets
             // 
             this.keywordTemplets.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.keywordTemplets.Location = new System.Drawing.Point(297, 253);
+            this.keywordTemplets.Location = new System.Drawing.Point(297, 175);
             this.keywordTemplets.Name = "keywordTemplets";
             this.keywordTemplets.Size = new System.Drawing.Size(221, 30);
-            this.keywordTemplets.TabIndex = 5;
+            this.keywordTemplets.TabIndex = 3;
+            // 
+            // SRT_button
+            // 
+            this.SRT_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SRT_button.Location = new System.Drawing.Point(43, 240);
+            this.SRT_button.Name = "SRT_button";
+            this.SRT_button.Size = new System.Drawing.Size(236, 56);
+            this.SRT_button.TabIndex = 4;
+            this.SRT_button.Text = "Select Rule Templates";
+            this.SRT_button.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.SRT_button.UseVisualStyleBackColor = true;
+            this.SRT_button.Click += new System.EventHandler(this.SKT_button_Click);
+            // 
+            // ruleTemplets
+            // 
+            this.ruleTemplets.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ruleTemplets.Location = new System.Drawing.Point(297, 253);
+            this.ruleTemplets.Name = "ruleTemplets";
+            this.ruleTemplets.Size = new System.Drawing.Size(221, 30);
+            this.ruleTemplets.TabIndex = 5;
             // 
             // dateTimePicker2
             // 
@@ -147,10 +147,10 @@ namespace Automation_interface
             this.Controls.Add(this.label2);
             this.Controls.Add(this.Run);
             this.Controls.Add(this.dateTimePicker2);
+            this.Controls.Add(this.ruleTemplets);
+            this.Controls.Add(this.SRT_button);
             this.Controls.Add(this.keywordTemplets);
             this.Controls.Add(this.SKT_button);
-            this.Controls.Add(this.ruleTempletsFile);
-            this.Controls.Add(this.SRT_button);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
@@ -167,10 +167,10 @@ namespace Automation_interface
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button SRT_button;
-        private System.Windows.Forms.TextBox ruleTempletsFile;
         private System.Windows.Forms.Button SKT_button;
         private System.Windows.Forms.TextBox keywordTemplets;
+        private System.Windows.Forms.Button SRT_button;
+        private System.Windows.Forms.TextBox ruleTemplets;
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Button Run;
         private System.Windows.Forms.Label label2;

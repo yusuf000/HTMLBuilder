@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Automation_interface.model
 {
-    class Rule
+    class KeyWords
     {
         public List<Replacer> replacers = new List<Replacer>();
         public List<Question> questions = new List<Question>();

@@ -30,7 +30,7 @@ namespace Automation_interface
                 string file = openFileDialog1.FileName;
                 try
                 {
-                    ruleTempletsFile.Text = file;
+                    keywordTemplets.Text = file;
                 }
                 catch (IOException)
                 {
@@ -47,10 +47,10 @@ namespace Automation_interface
         {
             try
             {
-                string rulesTempletePath = ruleTempletsFile.Text.Trim();
                 string keyWordTempletePath = keywordTemplets.Text.Trim();
+                string ruleTempletePath = ruleTemplets.Text.Trim();
                 List<List<string>> rules = new List<List<string>>();
-                using (var rd = new StreamReader(keyWordTempletePath))
+                using (var rd = new StreamReader(ruleTempletePath))
                 {
                     while (!rd.EndOfStream)
                     {
@@ -69,7 +69,7 @@ namespace Automation_interface
                 for (int i = 1; i < rules.Count; i++)
                 {
                     PageBuilder pageBuilder = new PageBuilder();
-                    model.Rule rule = Util.getRule(rulesTempletePath);
+                    model.KeyWords rule = Util.getRule(keyWordTempletePath);
                     string html = pageBuilder.createpage(rules[1], rule, dateTimePicker2.Value, checkBox1.Checked);
                     File.WriteAllText("web_" + i + ".html", html);
                 }
@@ -96,7 +96,7 @@ namespace Automation_interface
                 string file = openFileDialog1.FileName;
                 try
                 {
-                    keywordTemplets.Text = file;
+                    ruleTemplets.Text = file;
                 }
                 catch (IOException)
                 {

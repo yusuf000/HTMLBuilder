@@ -11,6 +11,7 @@ namespace Automation_interface.model
     {
         public string tagInhtml;
         public string value;
+        public bool isOnlyOncesUse = false;
         public List<string> variant = new List<string>();
 
         public bool equal(Replacer res)
