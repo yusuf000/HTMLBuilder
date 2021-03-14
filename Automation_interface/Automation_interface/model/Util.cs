@@ -6,12 +6,14 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using LumenWorks.Framework.IO.Csv;
 
 namespace Automation_interface.model
 {
     class Util
     {
         public static Random rand = new Random();
+        public static DateTime currentDate;
         public static List<Replacer> usedValue = new List<Replacer>();
 
         public static string StripTags(string html)
@@ -43,56 +45,69 @@ namespace Automation_interface.model
         }
 
 
-        public static KeyWords getRule(string fileName)
+        public static KeyWords getRule(string fileName, bool isVote)
         {
             KeyWords rule = new KeyWords();
-            using (var rd = new StreamReader(fileName))
+            using (var rd = new CsvReader(new StreamReader(fileName), false))
             {
-                while (!rd.EndOfStream)
+                while (rd.ReadNextRecord())
                 {
-                    List<string> list = new List<string>();
-                    var splits = rd.ReadLine().Split(',');
-                    if (splits.Length > 1)
+                    if (rd.FieldCount > 1)
                     {
-                        if (splits[0].Contains("question"))
+                        if (rd[0].Contains("question"))
                         {
                             string pattern = @"\#(.*?)\#";
-                            MatchCollection matches = Regex.Matches(splits[0], pattern);
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
                             int serial = Int32.Parse(matches[0].Value.Substring(1, (matches[0].Value.Length - 2)));
-                            rule.questions.Add(new Question(splits[1], serial));
+                            rule.questions.Add(new Question(rd[1].Replace("@", ","), serial));
                         }
-                        else if (splits[0].Contains("metatitle"))
+                        else if (rd[0].Contains("metatitle"))
                         {
                             string pattern = @"\#(.*?)\#";
-                            MatchCollection matches = Regex.Matches(splits[0], pattern);
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
                             int serial = Int32.Parse(matches[0].Value.Substring(1, (matches[0].Value.Length - 2)));
-                            rule.metaTitles.Add(new MetaTitle(splits[1], serial));
+                            rule.metaTitles.Add(new MetaTitle(rd[1].Replace("@", ","), serial));
                         }
-                        else if (splits[0].Contains("answer"))
+                        else if (rd[0].Contains("answer"))
                         {
                             string pattern = @"\#(.*?)\#";
-                            MatchCollection matches = Regex.Matches(splits[0], pattern);
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
                             int serial = Int32.Parse(matches[0].Value.Substring(1, (matches[0].Value.Length - 2)));
-                            rule.answers.Add(new Answer(splits[1], serial));
+                            Answer ans = new Answer(rd[1].Replace("@", ","), serial);
+                            
+                            if (isVote)
+                            {
+                                try
+                                {
+                                    string temp = rd[2];
+                                    string[] range = temp.Split(',');
+                                    int low = Int32.Parse(range[0]);
+                                    int high = Int32.Parse(range[1]);
+                                    ans.voteCount = rand.Next(low, high + 1);
+                                }
+                                catch (Exception e)
+                                {
+                                    throw new Exception("Vote count missing");
+                                }
+                            }
+                            rule.answers.Add(ans);
                         }
                         else
                         {
                             Replacer re = new Replacer();
-                            re.tagInhtml = splits[0].Trim().ToLower();
-                            re.value = splits[1].Trim('\"').Replace("@", ",");
-                            if (splits.Length > 2)
+                            re.tagInhtml = rd[0].Trim().ToLower();
+                            re.value = rd[1].Replace("@", ",");
+                            if (rd.FieldCount > 2)
                             {
-                                for (int i = 2; i < splits.Length; i++)
+                                for (int i = 2; i < rd.FieldCount; i++)
                                 {
-                                    string s = splits[i].Trim();
+                                    string s = rd[i].Trim();
                                     if (s.Length > 0)
                                         re.variant.Add(s);
                                 }
                             }
                             rule.replacers.Add(re);
                         }
-
-                        
                     }
 
                     

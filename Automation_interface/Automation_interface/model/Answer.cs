@@ -11,6 +11,7 @@ namespace Automation_interface.model
         public string value;
         public int serialNumber;
         public bool isAccepted;
+        public int voteCount = 0;
 
         public Answer(string v, int s, bool i = false)
         {

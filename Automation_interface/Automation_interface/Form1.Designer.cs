@@ -30,7 +30,7 @@ namespace Automation_interface
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.numberOfPages = new System.Windows.Forms.TextBox();
             this.SKT_button = new System.Windows.Forms.Button();
             this.keywordTemplets = new System.Windows.Forms.TextBox();
             this.SRT_button = new System.Windows.Forms.Button();
@@ -39,6 +39,9 @@ namespace Automation_interface
             this.Run = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.continuousTime = new System.Windows.Forms.CheckBox();
+            this.percentage = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -51,13 +54,14 @@ namespace Automation_interface
             this.label1.TabIndex = 0;
             this.label1.Text = "Number of pages to create";
             // 
-            // textBox1
+            // numberOfPages
             // 
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(297, 43);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(175, 30);
-            this.textBox1.TabIndex = 1;
+            this.numberOfPages.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numberOfPages.Location = new System.Drawing.Point(408, 43);
+            this.numberOfPages.Name = "numberOfPages";
+            this.numberOfPages.Size = new System.Drawing.Size(144, 30);
+            this.numberOfPages.TabIndex = 1;
+            this.numberOfPages.Text = "1";
             // 
             // SKT_button
             // 
@@ -131,18 +135,53 @@ namespace Automation_interface
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.Location = new System.Drawing.Point(43, 375);
+            this.checkBox1.Location = new System.Drawing.Point(43, 372);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(82, 29);
             this.checkBox1.TabIndex = 10;
             this.checkBox1.Text = "Votes";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // continuousTime
+            // 
+            this.continuousTime.AutoSize = true;
+            this.continuousTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.continuousTime.Location = new System.Drawing.Point(43, 407);
+            this.continuousTime.Name = "continuousTime";
+            this.continuousTime.Size = new System.Drawing.Size(180, 29);
+            this.continuousTime.TabIndex = 11;
+            this.continuousTime.Text = "Continuous Time";
+            this.continuousTime.UseVisualStyleBackColor = true;
+            this.continuousTime.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            // 
+            // percentage
+            // 
+            this.percentage.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.percentage.Location = new System.Drawing.Point(408, 83);
+            this.percentage.Name = "percentage";
+            this.percentage.Size = new System.Drawing.Size(144, 30);
+            this.percentage.TabIndex = 13;
+            this.percentage.Text = "50";
+            this.percentage.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(38, 85);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(349, 25);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "NON-mandatory keyword probability %";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(566, 545);
+            this.Controls.Add(this.percentage);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.continuousTime);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.Run);
@@ -151,7 +190,7 @@ namespace Automation_interface
             this.Controls.Add(this.SRT_button);
             this.Controls.Add(this.keywordTemplets);
             this.Controls.Add(this.SKT_button);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.numberOfPages);
             this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -166,7 +205,7 @@ namespace Automation_interface
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox numberOfPages;
         private System.Windows.Forms.Button SKT_button;
         private System.Windows.Forms.TextBox keywordTemplets;
         private System.Windows.Forms.Button SRT_button;
@@ -175,6 +214,9 @@ namespace Automation_interface
         private System.Windows.Forms.Button Run;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox continuousTime;
+        private System.Windows.Forms.TextBox percentage;
+        private System.Windows.Forms.Label label3;
     }
 }
 

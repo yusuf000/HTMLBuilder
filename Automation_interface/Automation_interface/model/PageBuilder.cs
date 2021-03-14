@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Server;
 
 namespace Automation_interface.model
 {
     class PageBuilder
     {
+        private string[] templateHeader;
         private string mainHeader;
         private string headerhtmlcode;
         private string posthtmlcode;
@@ -20,11 +22,18 @@ namespace Automation_interface.model
         private string metastring;
         private string page;
         private int questionIndex;
+        private Replacer questionState = null;
+        private Replacer answerState = null;
+        private Replacer questioner = null;
+        private Replacer replier = null;
         private string poster;
-        private string countTest = "Posts: ";
-        private DateTime currentTime;
+        private bool canReplierreplyback = false;
+        private bool isvote;
         private model.KeyWords rule;
         private string metaTeg = "";
+        private int percentage;
+        private string prevQuestion;
+        private string prevAnswer;
         private Dictionary<string, string> questionRule;
         private Dictionary<string, Replacer> usedReplacers;
         private List<Replacer> listOfReplacers;
@@ -40,43 +49,50 @@ namespace Automation_interface.model
             footerhtmlcode = File.ReadAllText("HTMLs/footerHtmlCode.txt");
             replybackhtml = File.ReadAllText("HTMLs/postreplyback.txt");
             banner = File.ReadAllText("HTMLs/Banner.txt");
-            
         }
 
-        public string createpage(List<string> templete, model.KeyWords r, DateTime cur, bool isVote)
+        public string createpage(List<string> templete, model.KeyWords r, bool isVote, string[] headers, int per)
         {
             this.page = mainHeader;
+            this.templateHeader = headers;
+            this.percentage = per;
             rule = r;
-            currentTime = cur;
-            if (isVote)
-            {
-                countTest = "Votes: ";
-            }
-
+            isvote = isVote;
             int questionCount = 0;
             string metaTitle = null;
             bool isWaitingForModerator = true;
             for (int i = 0; i < templete.Count; i++)
             {
-                if (templete[i] == "*headerhtmlcode*")
+                if (templete[i] == "*headerhtmlcode*" && headers[i] == "Page Header")
                 {
                     if (!isWaitingForModerator)
                     {
                         metaTitle = findMetatitle();
                         createHeader(metaTitle);
                     }
-                } else if (templete[i] == "*posthtmlcode*")
+                } else if (templete[i] == "*posthtmlcode*" && headers[i] == "Poster Header")
                 {
+                    initializeNewQuestion();
                     i++;
                     string question = "";
-                    questionIndex = -1;
                     while (!templete[i].Contains("question"))
                     {
+                        
+                        if (templete[i].Contains("%"))
+                        {
+                            if (isYes())
+                            {
+                                string key = templete[i].Substring(1, templete[i].Length - 2);
+                                var res = findByKey(key);
+                                question += res[Util.rand.Next(0, res.Count)].value + " ";
+                            }
+                            i++;
+                            continue;
+                        }
                         var rc = findByKey(templete[i]);
                         question += rc[Util.rand.Next(0, rc.Count)].value + " ";
                         i++;
                     }
-
                     if (!templete[i].Contains("random"))
                     {
                         string pattern = @"\#(.*?)\#";
@@ -88,9 +104,6 @@ namespace Automation_interface.model
                     {
                         questionIndex = Util.rand.Next(0, rule.questions.Count);
                     }
-                    questionRule = new Dictionary<string, string>();
-                    usedReplacers = new Dictionary<string, Replacer>();
-                    listOfReplacers = new List<Replacer>();
                     string q = findQuestion();
                     if (isWaitingForModerator)
                     {
@@ -98,21 +111,128 @@ namespace Automation_interface.model
                         createHeader(metaTitle);
                         isWaitingForModerator = false;
                     }
-                    createQuestion(q, metaTitle);
+                    else
+                    {
+                        metaTitle = findMetatitle();
+                    }
+                    question += q;
+                    while (headers[i + 1] == "Poster")
+                    {
+                        i++;
+                        if (!templete[i].Contains("*metatitle*"))
+                        {
+                            if (templete[i].Contains("%"))
+                            {
+                                if (isYes())
+                                {
+                                    string key = templete[i].Substring(1, templete[i].Length - 2);
+                                    var res = findByKey(key);
+                                    question += res[Util.rand.Next(0, res.Count)].value + " ";
+                                }
+                                continue;
+                            }
+                            var rc = findByKey(templete[i]);
+                            question += " " + rc[Util.rand.Next(0, rc.Count)].value ;
+                        }
+
+                    }
+                    createQuestion(question, metaTitle);
                 }
                 else if (templete[i] == "*replyhtmlcode*")
                 {
                     i++;
-                    string question = "";
+                    answerState = null;
+                    string answer = "";
                     while (!templete[i].Contains("answer"))
                     {
+                        if (templete[i].Contains("%"))
+                        {
+                            if (isYes())
+                            {
+                                string key = templete[i].Substring(1, templete[i].Length - 2);
+                                var res = findByKey(key);
+                                answer += res[Util.rand.Next(0, res.Count)].value + " ";
+                            }
+                            i++;
+                            continue;
+                        }
                         var rc = findByKey(templete[i]);
-                        question += rc[Util.rand.Next(0, rc.Count)].value + " ";
+                        answer += rc[Util.rand.Next(0, rc.Count)].value + " ";
                         i++;
                     }
-                    string q = findAnswer();
-                    
-                    createAnswer(q, metaTitle);
+
+                    int votes = 0;
+                    string a = findAnswer(ref votes);
+                    answer += " " + a;
+                    while (headers[i + 1] == "Reply")
+                    {
+                        i++;
+                        if (!templete[i].Contains("*metatitle*"))
+                        {
+                            if (templete[i].Contains("%"))
+                            {
+                                if (isYes())
+                                {
+                                    string key = templete[i].Substring(1, templete[i].Length - 2);
+                                    var res = findByKey(key);
+                                    answer += res[Util.rand.Next(0, res.Count)].value + " ";
+                                }
+                                continue;
+                            }
+                            var rc = findByKey(templete[i]);
+                            answer += " " + rc[Util.rand.Next(0, rc.Count)].value ;
+                        }
+
+                    }
+                    createAnswer(answer, metaTitle, votes);
+                }
+                else if (templete[i] == "*posterreplyback*")
+                {
+                    bool doReply = false;
+                    if (headers[i].Contains("%"))
+                    {
+                        if (isYes())
+                        {
+                            doReply = true;
+                        }
+                    }
+                    else
+                    {
+                        doReply = true;
+                    }
+                    if (doReply)
+                    {
+                        var replies = findByKey("*posterreplyback*");
+                        var re = replies[Util.rand.Next(0, replies.Count)];
+                        createReplyBack(re.value, metaTitle, prevAnswer ,questioner, replier);
+                    }
+
+                    canReplierreplyback = true;
+                }
+                else if (templete[i] == "*replierreplyback*")
+                {
+                    bool doReply = false;
+                    if (headers[i].Contains("%"))
+                    {
+                        if (isYes())
+                        {
+                            doReply = true;
+                        }
+                    }
+                    else
+                    {
+                        doReply = true;
+                    }
+
+                    if (doReply && canReplierreplyback)
+                    {
+                        var replies = findByKey("*replierreplyback*");
+                        var re = replies[Util.rand.Next(0, replies.Count)];
+                        createReplyBack(re.value, metaTitle, prevQuestion, replier, questioner);
+                    }
+
+                    canReplierreplyback = false;
+
                 }
                 else if (templete[i].Contains("*footerhtmlcode*"))
                 {
@@ -122,6 +242,17 @@ namespace Automation_interface.model
             }
 
             return page;
+        }
+        private void initializeNewQuestion()
+        {
+            questionState = null;
+            questionIndex = -1;
+            questionRule = new Dictionary<string, string>();
+            usedReplacers = new Dictionary<string, Replacer>();
+            listOfReplacers = new List<Replacer>();
+            questioner = null;
+            replier = null;
+            canReplierreplyback = false;
         }
 
         private void createHeader(string metaTile)
@@ -146,32 +277,103 @@ namespace Automation_interface.model
             copy = copy.Replace("<*greeting*>", "");
             copy = copy.Replace("<*question#>", question);
             var posters = findByKey("*postername*");
-            var pos = posters[Util.rand.Next(0, posters.Count)];
+            var pos = findPosterOrReplier(posters);
+            questioner = pos;
             poster = pos.value;
             copy = copy.Replace("<*postername*>", poster);
-            copy = copy.Replace("<*date*>", currentTime.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
-            currentTime = currentTime.AddMinutes(Util.rand.Next(10, 7200));
-            copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + clearAllTag(pos.variant[0]));
-            copy = copy.Replace("<*location*>", clearAllTag(pos.variant[1]));
-            copy = copy.Replace("Schools", countTest + clearAllTag(pos.variant[2]));
+            copy = copy.Replace("<*date*>", Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
+            Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
+            pos.variant[0] = clearAllTag(pos.variant[0]);
+            pos.variant[1] = clearAllTag(pos.variant[1]);
+            pos.variant[2] = clearAllTag(pos.variant[2]);
+            copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + pos.variant[0]);
+            copy = copy.Replace("<*location*>", pos.variant[1]);
+            copy = copy.Replace("Schools", "Posts: " + pos.variant[2]);
+            copy = copy.Replace("Votes", "");
+            questioner = pos;
+            prevQuestion = question;
             this.page = page + copy;
         }
 
-        private void createAnswer(string answer, string metatitle)
+        private Replacer findPosterOrReplier(List<Replacer> list)
+        {
+            string state = null;
+            if (questionState != null)
+            {
+                state = questionState.value;
+            } else if (answerState != null)
+            {
+                state = answerState.value;
+            }
+
+            if (state != null)
+            {
+                List<Replacer> replacers = new List<Replacer>();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (list[i].variant[1].ToLower() == state.ToLower())
+                    {
+                        replacers.Add(list[i]);
+                    }
+                }
+                if (replacers.Count > 0)
+                {
+                    return replacers[Util.rand.Next(0, replacers.Count)];
+                }
+                throw new Exception("Same " + state + " state poster or replier not found");
+            }
+            else
+            {
+                return list[Util.rand.Next(0, list.Count)];
+            }
+        }
+
+        private void createAnswer(string answer, string metatitle, int votes)
         {
             string copy = posthtmlcode;
             copy = copy.Replace("<*metatitle*>", "Re: " + metatitle);
             copy = copy.Replace("<*question#>", answer);
             copy = copy.Replace("<*greeting*>", "");
             var posters = findByKey("*repliername*");
-            var pos = posters[Util.rand.Next(0, posters.Count)];
+            var pos = findPosterOrReplier(posters);
             poster = pos.value;
             copy = copy.Replace("<*postername*>", poster);
-            copy = copy.Replace("<*date*>", currentTime.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
-            currentTime = currentTime.AddMinutes(Util.rand.Next(10, 7200));
-            copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + clearAllTag(pos.variant[0]));
-            copy = copy.Replace("<*location*>", clearAllTag(pos.variant[1]));
-            copy = copy.Replace("Schools", countTest + clearAllTag(pos.variant[2]));
+            copy = copy.Replace("<*date*>", Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
+            Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
+            pos.variant[0] = clearAllTag(pos.variant[0]);
+            pos.variant[1] = clearAllTag(pos.variant[1]);
+            pos.variant[2] = clearAllTag(pos.variant[2]);
+            copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + pos.variant[0]);
+            copy = copy.Replace("<*location*>", pos.variant[1]);
+            copy = copy.Replace("Schools", "Posts: " + pos.variant[2]);
+            if (isvote)
+            {
+                copy = copy.Replace("Votes", "Votes: " + votes);
+            }
+            else
+            {
+                copy = copy.Replace("Votes", "");
+            }
+
+            replier = pos;
+            prevAnswer = answer;
+            this.page = page + copy;
+        }
+
+        private void createReplyBack(string reply, string metatitle, string question, Replacer poster, Replacer questioner)
+        {
+            string copy = posthtmlcode;
+            copy = copy.Replace("<*metatitle*>", "Re: " + metatitle);
+            copy = copy.Replace("<*question#>", question);
+            copy = copy.Replace("<*posterreplyback*>", reply);
+            copy = copy.Replace("<*postername1*>", questioner.value);
+            copy = copy.Replace("<*postername*>", poster.value);
+            copy = copy.Replace("<*date*>", Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
+            Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
+            copy = copy.Replace("<*level*>",  poster.variant[0]);
+            copy = copy.Replace("<*location*>", poster.variant[1]);
+            copy = copy.Replace(" <*Postcount*>", poster.variant[2]);
+            
             this.page = page + copy;
         }
 
@@ -186,11 +388,20 @@ namespace Automation_interface.model
                 }
             }
 
+            if (list.Count == 0)
+            {
+                throw new Exception("*"+ key +"* is not present or have less in count");
+            }
+
             return list;
         }
 
         private string findQuestion()
         {
+            if (rule.questions.Count == 0)
+            {
+                throw  new Exception("Does not have enough question");
+            }
             if (questionIndex < 0 )
             {
                 questionIndex = Util.rand.Next(0, rule.questions.Count);
@@ -206,12 +417,20 @@ namespace Automation_interface.model
             return clearAllTag(m.value);
         }
 
-        private string findAnswer()
+        private string findAnswer(ref int votes)
         {
-            int i = Util.rand.Next(0, answerList.Count);
-            Answer a = answerList[i];
-            answerList.RemoveAt(i);
-            return clearAllTag(a.value);
+            if (answerList != null && answerList.Count > 0)
+            {
+                int i = Util.rand.Next(0, answerList.Count);
+                Answer a = answerList[i];
+                votes = a.voteCount;
+                answerList.RemoveAt(i);
+                return clearAllTag(a.value);
+            }
+            else
+            {
+                throw new Exception("Does not have enough answer for question " + questionIndex);
+            }
         }
 
         private string clearAllTag(string text, bool isQuestion = false)
@@ -293,9 +512,22 @@ namespace Automation_interface.model
                         if (isQuestion)
                         {
                             questionRule[matches[i].Value] = rep.value;
+                            if (key.Contains("state"))
+                            {
+                                questionState = rep;
+                            }
+                        }
+                        else
+                        {
+                            if (key.Contains("state"))
+                            {
+                                answerState = rep;
+                            }
                         }
 
                         usedReplacers[matches[i].Value] = rep;
+                        listOfReplacers.Add(rep);
+                        //rule.replacers.Remove(rep);
                     }
                 }
                 matches = Regex.Matches(text, pattern);
@@ -326,6 +558,18 @@ namespace Automation_interface.model
             }
 
             return replacers;
+        }
+
+        private bool isYes()
+        {
+            int randomNumber = Util.rand.Next(0, 100);
+
+            if (randomNumber < percentage)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

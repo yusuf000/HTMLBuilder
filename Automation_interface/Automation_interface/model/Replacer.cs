@@ -18,10 +18,10 @@ namespace Automation_interface.model
         {
             if (this.tagInhtml == res.tagInhtml && this.value == res.value)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
     }
 }

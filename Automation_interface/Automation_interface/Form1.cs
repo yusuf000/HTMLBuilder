@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using Automation_interface.model;
+using LumenWorks.Framework.IO.Csv;
 
 namespace Automation_interface
 {
@@ -50,30 +51,39 @@ namespace Automation_interface
                 string keyWordTempletePath = keywordTemplets.Text.Trim();
                 string ruleTempletePath = ruleTemplets.Text.Trim();
                 List<List<string>> rules = new List<List<string>>();
-                using (var rd = new StreamReader(ruleTempletePath))
+                
+                using (var rd = new CsvReader(new StreamReader(ruleTempletePath), false))
                 {
-                    while (!rd.EndOfStream)
+                    while (rd.ReadNextRecord())
                     {
                         List<string> list = new List<string>();
-                        var splits = rd.ReadLine().Split(',');
-                        for (int i = 0; i < splits.Length; i++)
+                        for (int i = 0; i < rd.FieldCount; i++)
                         {
-                            string s = splits[i].Trim();
-                            if(s.Length > 0)
-                                list.Add(s);
+                            string s = rd[i].Trim();
+                            list.Add(s);
                         }
                         rules.Add(list);
                     }
                 }
 
-                for (int i = 1; i < rules.Count; i++)
+                int numberOfPages = Int32.Parse(this.numberOfPages.Text.Trim());
+                int percentate = Int32.Parse(this.percentage.Text.Trim());
+
+                for (int page = 1; page <= numberOfPages; page++)
                 {
-                    PageBuilder pageBuilder = new PageBuilder();
-                    model.KeyWords rule = Util.getRule(keyWordTempletePath);
-                    string html = pageBuilder.createpage(rules[1], rule, dateTimePicker2.Value, checkBox1.Checked);
-                    File.WriteAllText("web_" + i + ".html", html);
+                    Util.currentDate = dateTimePicker2.Value;
+                    for (int i = 1; i < rules.Count; i++)
+                    {
+                        if (!continuousTime.Checked)
+                        {
+                            Util.currentDate = dateTimePicker2.Value;
+                        }
+                        PageBuilder pageBuilder = new PageBuilder();
+                        model.KeyWords keywords = Util.getRule(keyWordTempletePath, checkBox1.Checked);
+                        string html = pageBuilder.createpage(rules[i], keywords, checkBox1.Checked, rules[0].ToArray(), percentate);
+                        File.WriteAllText("web_" + page + "_" + i + ".html", html);
+                    }
                 }
-                
 
                 MessageBox.Show("Done", "Info",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -102,6 +112,16 @@ namespace Automation_interface
                 {
                 }
             }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
