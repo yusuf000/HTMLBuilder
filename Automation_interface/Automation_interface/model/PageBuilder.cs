@@ -32,7 +32,7 @@ namespace Automation_interface.model
         private model.KeyWords rule;
         private string metaTeg = "";
         private int percentage;
-        private string prevQuestion;
+        private string prevReply;
         private string prevAnswer;
         private Dictionary<string, string> questionRule;
         private Dictionary<string, Replacer> usedReplacers;
@@ -204,7 +204,8 @@ namespace Automation_interface.model
                     {
                         var replies = findByKey("*posterreplyback*");
                         var re = replies[Util.rand.Next(0, replies.Count)];
-                        createReplyBack(re.value, metaTitle, prevAnswer ,questioner, replier);
+                        prevReply = clearAllTag(re.value.Replace("*repliername*", replier.value));
+                        createReplyBack(prevReply, metaTitle, prevAnswer ,questioner, replier);
                     }
 
                     canReplierreplyback = true;
@@ -228,7 +229,7 @@ namespace Automation_interface.model
                     {
                         var replies = findByKey("*replierreplyback*");
                         var re = replies[Util.rand.Next(0, replies.Count)];
-                        createReplyBack(re.value, metaTitle, prevQuestion, replier, questioner);
+                        createReplyBack(clearAllTag(re.value.Replace("*postername*", replier.value)), metaTitle, prevReply, replier, questioner);
                     }
 
                     canReplierreplyback = false;
@@ -253,6 +254,7 @@ namespace Automation_interface.model
             questioner = null;
             replier = null;
             canReplierreplyback = false;
+            prevReply = null;
         }
 
         private void createHeader(string metaTile)
@@ -291,7 +293,6 @@ namespace Automation_interface.model
             copy = copy.Replace("Schools", "Posts: " + pos.variant[2]);
             copy = copy.Replace("Votes", "");
             questioner = pos;
-            prevQuestion = question;
             this.page = page + copy;
         }
 
@@ -362,7 +363,7 @@ namespace Automation_interface.model
 
         private void createReplyBack(string reply, string metatitle, string question, Replacer poster, Replacer questioner)
         {
-            string copy = posthtmlcode;
+            string copy = replybackhtml;
             copy = copy.Replace("<*metatitle*>", "Re: " + metatitle);
             copy = copy.Replace("<*question#>", question);
             copy = copy.Replace("<*posterreplyback*>", reply);
@@ -372,7 +373,7 @@ namespace Automation_interface.model
             Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
             copy = copy.Replace("<*level*>",  poster.variant[0]);
             copy = copy.Replace("<*location*>", poster.variant[1]);
-            copy = copy.Replace(" <*Postcount*>", poster.variant[2]);
+            copy = copy.Replace("<*Postcount*>", poster.variant[2]);
             
             this.page = page + copy;
         }

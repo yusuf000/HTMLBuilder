@@ -30,7 +30,12 @@ namespace Automation_interface.model
                     tempList.Add(metaTitles[i]);
                 }
             }
-            
+
+            if (tempList.Count == 0)
+            {
+                throw new Exception("No metatile found for question number " + serialNumber);
+            }
+
             return tempList[Util.rand.Next(0, tempList.Count)];
         }
 

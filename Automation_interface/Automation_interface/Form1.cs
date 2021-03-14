@@ -68,10 +68,9 @@ namespace Automation_interface
 
                 int numberOfPages = Int32.Parse(this.numberOfPages.Text.Trim());
                 int percentate = Int32.Parse(this.percentage.Text.Trim());
-
+                Util.currentDate = dateTimePicker2.Value;
                 for (int page = 1; page <= numberOfPages; page++)
                 {
-                    Util.currentDate = dateTimePicker2.Value;
                     for (int i = 1; i < rules.Count; i++)
                     {
                         if (!continuousTime.Checked)
