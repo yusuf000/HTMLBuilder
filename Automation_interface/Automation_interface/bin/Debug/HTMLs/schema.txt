@@ -1,0 +1,9 @@
+﻿<script type="application/ld+json">
+{
+	"@context": "http://test.org/",
+	"@type": "EducationalOrganization",
+		"description":"this is my company",
+		"name":"ABC company",
+		"url":"www.test.com"
+}
+</script>

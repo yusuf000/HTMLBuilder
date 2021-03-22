@@ -82,3 +82,13 @@ D:\Yusuf\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\System.
 D:\Yusuf\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\System.Numerics.Vectors.xml
 D:\Yusuf\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 D:\Yusuf\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\System.ValueTuple.xml
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\CsvHelper.dll
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\CsvHelper.xml
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\pagination_URL.txt
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\Newtonsoft.Json.dll
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\Newtonsoft.Json.xml
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\BodyHtmlCode_votes.txt
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\metalist.txt
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\schema.txt
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\paginationremove.txt
+D:\Yusuf\Freelancing\dan\HTMLBuilder\Automation_interface\Automation_interface\bin\Debug\HTMLs\quoteHtml.txt

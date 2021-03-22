@@ -15,8 +15,16 @@ namespace Automation_interface.model
 
         public Question findQuestion(int index)
         {
-            Question q = questions[index];
-            questions.RemoveAt(index);
+            List<Question> qq = new List<Question>();
+            for (int i = 0; i < questions.Count; i++)
+            {
+                if (questions[i].serialNumber == index)
+                {
+                    qq.Add(questions[i]);
+                }
+            }
+            Question q = qq[Util.rand.Next(0, qq.Count)];
+            questions.Remove(q);
             return q;
         }
 
@@ -44,7 +52,21 @@ namespace Automation_interface.model
             List<Answer> ans = new List<Answer>();
             for (int i = 0; i < answers.Count; i++)
             {
-                if (answers[i].serialNumber == serialNumber)
+                if (answers[i].serialNumber == serialNumber && answers[i].isAccepted == false)
+                {
+                    ans.Add(answers[i]);
+                }
+            }
+
+            return ans;
+        }
+
+        public List<Answer> FindAnswerAcceptedList(int serialNumber)
+        {
+            List<Answer> ans = new List<Answer>();
+            for (int i = 0; i < answers.Count; i++)
+            {
+                if (answers[i].serialNumber == serialNumber && answers[i].isAccepted == true)
                 {
                     ans.Add(answers[i]);
                 }

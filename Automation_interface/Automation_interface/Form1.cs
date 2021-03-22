@@ -48,10 +48,16 @@ namespace Automation_interface
         {
             try
             {
+                Util.allPagesOfProgram = new List<PageBuilder>();
                 string keyWordTempletePath = keywordTemplets.Text.Trim();
                 string ruleTempletePath = ruleTemplets.Text.Trim();
                 List<List<string>> rules = new List<List<string>>();
-                
+                string extention = "html";
+                if (outputAsTxt.Checked)
+                {
+                    extention = "txt";
+                }
+
                 using (var rd = new CsvReader(new StreamReader(ruleTempletePath), false))
                 {
                     while (rd.ReadNextRecord())
@@ -66,11 +72,17 @@ namespace Automation_interface
                     }
                 }
 
+                Util.setSystemName(rules[0].ToArray(), rules[1].ToArray());
+                Util.continuousOutputCSV = continuousOutputCSV.Checked;
                 int numberOfPages = Int32.Parse(this.numberOfPages.Text.Trim());
                 int percentate = Int32.Parse(this.percentage.Text.Trim());
                 Util.currentDate = dateTimePicker2.Value;
+                
                 for (int page = 1; page <= numberOfPages; page++)
                 {
+                    Util.loadUsedKeywordValue();
+                    Util.pages = new List<PageBuilder>();
+                    Util.posterPostCount = new Dictionary<string, int>();
                     for (int i = 1; i < rules.Count; i++)
                     {
                         if (!continuousTime.Checked)
@@ -79,10 +91,28 @@ namespace Automation_interface
                         }
                         PageBuilder pageBuilder = new PageBuilder();
                         model.KeyWords keywords = Util.getRule(keyWordTempletePath, checkBox1.Checked);
-                        string html = pageBuilder.createpage(rules[i], keywords, checkBox1.Checked, rules[0].ToArray(), percentate);
-                        File.WriteAllText("web_" + page + "_" + i + ".html", html);
+                        pageBuilder.createpage(rules[i], keywords, checkBox1.Checked, rules[0].ToArray(), percentate);
+                        Util.pages.Add(pageBuilder);
+                        Util.allPagesOfProgram.Add(pageBuilder);
+                        //File.WriteAllText("web_" + page + "_" + i + ".html", html);
                     }
+                    if (isPaginator.Checked)
+                    {
+                        Util.createAndAddPaginator();
+                    }
+                    
+                    for (int i = 0; i < Util.pages.Count; i++)
+                    {
+                        string date = DateTime.Now.ToString("yyyy-MM-dd_HH_mm");
+                        Util.pages[i].addBanner();
+                        Util.pages[i].addLocation("web_" + page + "_" + i + "_" + date + "." + extention);
+                        File.WriteAllText("web_" + page + "_" + i + "_" + date + "." + extention, Util.pages[i].getPagHtml());
+                        //File.WriteAllText("markup_" + page + "_" + i + ".txt", Util.pages[i].getMarkup());
+                    }
+                    
+                    Util.saveUsedKeyword();
                 }
+                OutputCSV.getCsv(Util.allPagesOfProgram);
 
                 MessageBox.Show("Done", "Info",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,16 +14,25 @@ namespace Automation_interface.model
     class PageBuilder
     {
         private string[] templateHeader;
+        private string[] ruleTemplate;
+        private Markup markup;
+        public OutputCSV outputCsv;
+
         private string mainHeader;
         private string headerhtmlcode;
         private string posthtmlcode;
+        private string posthtmlcodeVotes;
         private string replyhtmlcode;
         private string footerhtmlcode;
         private string replybackhtml;
+        private string quoteHtml;
         private string banner;
-        private string metastring;
+
+        private int answerCount = 0;
         private string page;
+        private string fileName;
         private int questionIndex;
+        private string currentQuestion;
         private Replacer questionState = null;
         private Replacer answerState = null;
         private Replacer questioner = null;
@@ -30,14 +41,18 @@ namespace Automation_interface.model
         private bool canReplierreplyback = false;
         private bool isvote;
         private model.KeyWords rule;
-        private string metaTeg = "";
         private int percentage;
         private string prevReply;
         private string prevAnswer;
         private Dictionary<string, string> questionRule;
         private Dictionary<string, Replacer> usedReplacers;
         private List<Replacer> listOfReplacers;
+        private List<Replacer> usedInAnswer = new List<Replacer>();
         private List<Answer> answerList;
+        private int questionCount = 0;
+        private string pageUrl;
+        private string urlWithouHost;
+        
         
 
         public PageBuilder()
@@ -45,20 +60,25 @@ namespace Automation_interface.model
             mainHeader = File.ReadAllText("HTMLs/MainHeader.txt");
             headerhtmlcode = File.ReadAllText("HTMLs/PageheaderHTMLCode.txt");
             posthtmlcode = File.ReadAllText("HTMLs/BodyHtmlCode.txt");
+            posthtmlcodeVotes = File.ReadAllText("HTMLs/BodyHtmlCode_votes.txt");
             replyhtmlcode = File.ReadAllText("HTMLs/post_replyhtmlcode.txt");
             footerhtmlcode = File.ReadAllText("HTMLs/footerHtmlCode.txt");
             replybackhtml = File.ReadAllText("HTMLs/postreplyback.txt");
             banner = File.ReadAllText("HTMLs/Banner.txt");
+            pageUrl = File.ReadAllText("HTMLs/pagination_URL.txt");
+            quoteHtml = File.ReadAllText("HTMLs/quoteHtml.txt");
+            markup = new Markup();
+            outputCsv = new OutputCSV();
         }
 
         public string createpage(List<string> templete, model.KeyWords r, bool isVote, string[] headers, int per)
         {
             this.page = mainHeader;
             this.templateHeader = headers;
+            this.ruleTemplate = templete.ToArray();
             this.percentage = per;
             rule = r;
             isvote = isVote;
-            int questionCount = 0;
             string metaTitle = null;
             bool isWaitingForModerator = true;
             for (int i = 0; i < templete.Count; i++)
@@ -74,6 +94,7 @@ namespace Automation_interface.model
                 {
                     initializeNewQuestion();
                     i++;
+                    questionCount++;
                     string question = "";
                     while (!templete[i].Contains("question"))
                     {
@@ -84,13 +105,13 @@ namespace Automation_interface.model
                             {
                                 string key = templete[i].Substring(1, templete[i].Length - 2);
                                 var res = findByKey(key);
-                                question += res[Util.rand.Next(0, res.Count)].value + " ";
+                                question += clearAllTag(res[Util.rand.Next(0, res.Count)].value + " ", true);
                             }
                             i++;
                             continue;
                         }
                         var rc = findByKey(templete[i]);
-                        question += rc[Util.rand.Next(0, rc.Count)].value + " ";
+                        question += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ", true);
                         i++;
                     }
                     if (!templete[i].Contains("random"))
@@ -102,7 +123,12 @@ namespace Automation_interface.model
                     }
                     else
                     {
+                        if (rule.questions.Count == 0)
+                        {
+                            throw new Exception("Does not have enough question");
+                        }
                         questionIndex = Util.rand.Next(0, rule.questions.Count);
+                        questionIndex = rule.questions[questionIndex].serialNumber;
                     }
                     string q = findQuestion();
                     if (isWaitingForModerator)
@@ -127,12 +153,12 @@ namespace Automation_interface.model
                                 {
                                     string key = templete[i].Substring(1, templete[i].Length - 2);
                                     var res = findByKey(key);
-                                    question += res[Util.rand.Next(0, res.Count)].value + " ";
+                                    question += clearAllTag(res[Util.rand.Next(0, res.Count)].value + " ", true);
                                 }
                                 continue;
                             }
                             var rc = findByKey(templete[i]);
-                            question += " " + rc[Util.rand.Next(0, rc.Count)].value ;
+                            question += " " + clearAllTag(rc[Util.rand.Next(0, rc.Count)].value, true) ;
                         }
 
                     }
@@ -140,24 +166,42 @@ namespace Automation_interface.model
                 }
                 else if (templete[i] == "*replyhtmlcode*")
                 {
+                    bool isQuote = false;
+                    usedInAnswer = new List<Replacer>();
                     i++;
                     answerState = null;
                     string answer = "";
                     while (!templete[i].Contains("answer"))
                     {
-                        if (templete[i].Contains("%"))
+                        if (templete[i].Contains("quote"))
+                        {
+                            if (templete[i].Contains("%"))
+                            {
+                                if (isYes())
+                                {
+                                    isQuote = true;
+                                }
+                            }
+                            else
+                            {
+                                isQuote = true;
+                            }
+                            i++;
+                            continue;
+                        }
+                        else if (templete[i].Contains("%"))
                         {
                             if (isYes())
                             {
                                 string key = templete[i].Substring(1, templete[i].Length - 2);
                                 var res = findByKey(key);
-                                answer += res[Util.rand.Next(0, res.Count)].value + " ";
+                                answer += clearAllTag(res[Util.rand.Next(0, res.Count)].value + " ");
                             }
                             i++;
                             continue;
                         }
                         var rc = findByKey(templete[i]);
-                        answer += rc[Util.rand.Next(0, rc.Count)].value + " ";
+                        answer += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ");
                         i++;
                     }
 
@@ -175,16 +219,17 @@ namespace Automation_interface.model
                                 {
                                     string key = templete[i].Substring(1, templete[i].Length - 2);
                                     var res = findByKey(key);
-                                    answer += res[Util.rand.Next(0, res.Count)].value + " ";
+                                    answer += clearAllTag(res[Util.rand.Next(0, res.Count)].value + " ");
                                 }
                                 continue;
                             }
                             var rc = findByKey(templete[i]);
-                            answer += " " + rc[Util.rand.Next(0, rc.Count)].value ;
+                            answer += " " + clearAllTag(rc[Util.rand.Next(0, rc.Count)].value) ;
                         }
 
                     }
-                    createAnswer(answer, metaTitle, votes);
+                    createAnswer(answer, metaTitle, votes, isQuote);
+                    answerCount++;
                 }
                 else if (templete[i] == "*posterreplyback*")
                 {
@@ -206,9 +251,8 @@ namespace Automation_interface.model
                         var re = replies[Util.rand.Next(0, replies.Count)];
                         prevReply = clearAllTag(re.value.Replace("*repliername*", replier.value));
                         createReplyBack(prevReply, metaTitle, prevAnswer ,questioner, replier);
+                        canReplierreplyback = true;
                     }
-
-                    canReplierreplyback = true;
                 }
                 else if (templete[i] == "*replierreplyback*")
                 {
@@ -247,6 +291,7 @@ namespace Automation_interface.model
         private void initializeNewQuestion()
         {
             questionState = null;
+            answerCount = 0;
             questionIndex = -1;
             questionRule = new Dictionary<string, string>();
             usedReplacers = new Dictionary<string, Replacer>();
@@ -265,11 +310,14 @@ namespace Automation_interface.model
             string moderator = moderators[Util.rand.Next(0, moderators.Count)].value;
             copyHeader = copyHeader.Replace("<*Moderators*>", moderator);
             this.page = page + copyHeader;
+            createUrl(metaTile);
+            if(questionCount == 1)
+                markup.addTile(metaTile);
         }
 
         private void createFooter()
         {
-            this.page = page + banner;
+            
         }
 
         private void createQuestion(string question, string metaTitle)
@@ -283,16 +331,23 @@ namespace Automation_interface.model
             questioner = pos;
             poster = pos.value;
             copy = copy.Replace("<*postername*>", poster);
-            copy = copy.Replace("<*date*>", Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
+            string date = Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt");
+            copy = copy.Replace("<*date*>", date);
             Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
             pos.variant[0] = clearAllTag(pos.variant[0]);
             pos.variant[1] = clearAllTag(pos.variant[1]);
             pos.variant[2] = clearAllTag(pos.variant[2]);
             copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + pos.variant[0]);
             copy = copy.Replace("<*location*>", pos.variant[1]);
-            copy = copy.Replace("Schools", "Posts: " + pos.variant[2]);
+            copy = copy.Replace("Schools", "Posts: " + Util.posterPostCount[poster]++ );
             copy = copy.Replace("Votes", "");
             questioner = pos;
+            currentQuestion = question;
+            if (questionCount == 1)
+            {
+                markup.addQuestion(question, date, poster);
+                setOutputCsvAttribute(metaTitle, question);
+            }
             this.page = page + copy;
         }
 
@@ -329,9 +384,23 @@ namespace Automation_interface.model
             }
         }
 
-        private void createAnswer(string answer, string metatitle, int votes)
+        private void createAnswer(string answer, string metatitle, int votes, bool isQuote = false)
         {
-            string copy = posthtmlcode;
+            string copy;
+            if (isvote)
+            {
+                copy = posthtmlcodeVotes;
+            }
+            else
+            {
+                copy = posthtmlcode;
+            }
+
+            if (isQuote)
+            {
+                answer = quoteHtml.Replace("*posterName*", questioner.value).Replace("*question*", currentQuestion) + "<br><br><br>" + answer ;
+            }
+
             copy = copy.Replace("<*metatitle*>", "Re: " + metatitle);
             copy = copy.Replace("<*question#>", answer);
             copy = copy.Replace("<*greeting*>", "");
@@ -339,17 +408,18 @@ namespace Automation_interface.model
             var pos = findPosterOrReplier(posters);
             poster = pos.value;
             copy = copy.Replace("<*postername*>", poster);
-            copy = copy.Replace("<*date*>", Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt"));
+            string date = Util.currentDate.ToString("ddd, dd MMM yyy HH:mm:ss tt");
+            copy = copy.Replace("<*date*>", date);
             Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
             pos.variant[0] = clearAllTag(pos.variant[0]);
             pos.variant[1] = clearAllTag(pos.variant[1]);
             pos.variant[2] = clearAllTag(pos.variant[2]);
             copy = copy.Replace("Colleges and&nbsp;<*level*>", "Level: " + pos.variant[0]);
             copy = copy.Replace("<*location*>", pos.variant[1]);
-            copy = copy.Replace("Schools", "Posts: " + pos.variant[2]);
+            copy = copy.Replace("Schools", "Posts: " + Util.posterPostCount[poster]++);
             if (isvote)
             {
-                copy = copy.Replace("Votes", "Votes: " + votes);
+                copy = copy.Replace("*voteCount*", "" + votes);
             }
             else
             {
@@ -358,13 +428,34 @@ namespace Automation_interface.model
 
             replier = pos;
             prevAnswer = answer;
+            if (questionCount == 1)
+            {
+                if (isvote)
+                {
+                    if (answerCount == 0)
+                    {
+                        markup.addAcceptedAnswer(answer, date, poster, votes, pageUrl);
+                    }
+                    else
+                    {
+                        markup.addSuggestedAnswer(answer, date, poster, votes, pageUrl);
+                    }
+                }
+                else
+                {
+                    markup.addSuggestedAnswer(answer, date, poster, 0, pageUrl);
+                }
+            }
+
+            
+
             this.page = page + copy;
         }
 
         private void createReplyBack(string reply, string metatitle, string question, Replacer poster, Replacer questioner)
         {
             string copy = replybackhtml;
-            copy = copy.Replace("<*metatitle*>", "Re: " + metatitle);
+            copy = copy.Replace("<*metatitle*>", metatitle);
             copy = copy.Replace("<*question#>", question);
             copy = copy.Replace("<*posterreplyback*>", reply);
             copy = copy.Replace("<*postername1*>", questioner.value);
@@ -373,7 +464,7 @@ namespace Automation_interface.model
             Util.currentDate = Util.currentDate.AddMinutes(Util.rand.Next(10, 7200));
             copy = copy.Replace("<*level*>",  poster.variant[0]);
             copy = copy.Replace("<*location*>", poster.variant[1]);
-            copy = copy.Replace("<*Postcount*>", poster.variant[2]);
+            copy = copy.Replace("<*Postcount*>", "" + Util.posterPostCount[poster.value]++);
             
             this.page = page + copy;
         }
@@ -389,9 +480,12 @@ namespace Automation_interface.model
                 }
             }
 
-            if (list.Count == 0)
-            {
-                throw new Exception("*"+ key +"* is not present or have less in count");
+            if (list.Count == 0) {
+                if (retriveUsedKeyword(key) > 0)
+                {
+                    return findByKey(key);
+                }
+                throw new Exception("*"+ key +"* is not present in keyword csv");
             }
 
             return list;
@@ -403,10 +497,6 @@ namespace Automation_interface.model
             {
                 throw  new Exception("Does not have enough question");
             }
-            if (questionIndex < 0 )
-            {
-                questionIndex = Util.rand.Next(0, rule.questions.Count);
-            }
             Question q = rule.findQuestion(questionIndex);
             answerList = rule.FindAnswerList(questionIndex);
             return clearAllTag(q.value, true);
@@ -415,17 +505,32 @@ namespace Automation_interface.model
         private string findMetatitle()
         {
             MetaTitle m = rule.FindMetaTitle(questionIndex);
-            return clearAllTag(m.value);
+            return clearAllTag(m.value, true);
         }
 
         private string findAnswer(ref int votes)
         {
+            
+
             if (answerList != null && answerList.Count > 0)
             {
-                int i = Util.rand.Next(0, answerList.Count);
-                Answer a = answerList[i];
+                Answer a;
+                if (answerCount == 0 && this.isvote)
+                {
+                    var temp = rule.FindAnswerAcceptedList(questionIndex);
+                    if(temp.Count == 0)
+                        throw new Exception("Does not have accepted answer for question " + questionIndex);
+                    a = temp[Util.rand.Next(0, temp.Count)];
+                }
+                else
+                {
+                   int i = Util.rand.Next(0, answerList.Count);
+                   a = answerList[i];
+                   answerList.RemoveAt(i);
+                }
+                
                 votes = a.voteCount;
-                answerList.RemoveAt(i);
+                
                 return clearAllTag(a.value);
             }
             else
@@ -438,17 +543,21 @@ namespace Automation_interface.model
         {
             string pattern = @"\*(.*?)\*";
             MatchCollection matches = Regex.Matches(text, pattern);
+            
             while (matches.Count > 0)
             {
+                Dictionary<string, bool> isUsedEarly = new Dictionary<string, bool>();
                 for (int i = 0; i < matches.Count; i++)
                 {
-                    if (isQuestion == false)
+                    if (isUsedEarly.ContainsKey(matches[i].Value))
                     {
-                        if (questionRule.ContainsKey(matches[i].Value))
-                        {
-                            text = text.Replace(matches[i].Value, questionRule[matches[i].Value]);
-                            continue;
-                        }
+                        continue;
+                    }
+
+                    if (questionRule.ContainsKey(matches[i].Value))
+                    {
+                        text = text.Replace(matches[i].Value, questionRule[matches[i].Value]);
+                        continue;
                     }
 
                     string key;
@@ -491,13 +600,31 @@ namespace Automation_interface.model
 
                         if (res.Count < 1)
                         {
-                            throw new Exception(key + " This is no other value present in rule file please check carefully.");
+                            retriveUsedKeyword(key);
+                            res = filterUsed(res);
+                            if (res.Count < 1)
+                            {
+
+                                throw new Exception(key + " This is no other value present in rule file please check carefully.");
+                            }
+
                         }
                         var rep = res[Util.rand.Next(0, res.Count)];
                         text = text.Replace(matches[i].Value, rep.value);
                         if (isQuestion)
                         {
                             questionRule[matches[i].Value] = rep.value;
+                        }
+                        else
+                        {
+                            usedInAnswer.Add(rep);
+                        }
+                        listOfReplacers.Add(rep);
+                        if (rep.isOnlyOncesUse)
+                        {
+                            rule.replacers.Remove(rep);
+                            Util.usedValue.Add(rep);
+                            Util.usedForThisPage.Add(rep);
                         }
                     }
                     else
@@ -506,7 +633,14 @@ namespace Automation_interface.model
                         var re = findByKey(key);
                         if (re.Count < 1)
                         {
-                            throw new Exception(key + " This is not present in rule file please check carefully.");
+                            if (retriveUsedKeyword(key) > 0)
+                            {
+                                re = findByKey(key);
+                            }
+                            else
+                            {
+                                throw new Exception(key + " This is not present in rule file please check carefully.");
+                            }
                         }
                         var rep = re[Util.rand.Next(0, re.Count)];
                         text = text.Replace(matches[i].Value, rep.value);
@@ -525,16 +659,39 @@ namespace Automation_interface.model
                                 answerState = rep;
                             }
                         }
-
                         usedReplacers[matches[i].Value] = rep;
                         listOfReplacers.Add(rep);
-                        //rule.replacers.Remove(rep);
+                        if (rep.isOnlyOncesUse)
+                        {
+                            rule.replacers.Remove(rep);
+                            Util.usedValue.Add(rep);
+                            Util.usedForThisPage.Add(rep);
+                        }
                     }
+
+                    isUsedEarly[matches[i].Value] = true;
                 }
                 matches = Regex.Matches(text, pattern);
             }
 
             return text;
+        }
+
+        private int retriveUsedKeyword(string tag)
+        {
+            int count = 0;
+            var uniqueList = Replacer.findUniqueList(Util.usedForThisPage);
+            for (int i = 0; i < uniqueList.Count; i++)
+            {
+                if (tag == uniqueList[i].tagInhtml)
+                {
+                    count++;
+                    rule.replacers.Add(uniqueList[i]);
+                }
+            }
+
+            Util.usedForThisPage = uniqueList;
+            return count;
         }
 
         private List<Replacer> filterUsed(List<Replacer> res)
@@ -551,13 +708,20 @@ namespace Automation_interface.model
                         break;
                     }
                 }
+                for (int j = 0; j < usedInAnswer.Count; j++)
+                {
+                    if (res[i].equal(usedInAnswer[j]))
+                    {
+                        used = true;
+                        break;
+                    }
+                }
 
                 if (!used)
                 {
                     replacers.Add(res[i]);
                 }
             }
-
             return replacers;
         }
 
@@ -571,6 +735,167 @@ namespace Automation_interface.model
             }
 
             return false;
+        }
+
+        public void addPaginator(string paginator)
+        {
+            this.page += paginator;
+        }
+
+        public string getPagHtml()
+        {
+            return  markup.getMarkup() + this.page + "</body></html>";
+        }
+
+        public string getUrl()
+        {
+            return this.pageUrl;
+        }
+
+        private void createUrl(string metatitle)
+        {
+            metatitle = metatitle.Replace("-", "");
+            string url = metatitle.Replace(" ", "-")+ "-" + Util.rand.Next(10000, 1000000);
+            url = url.Replace("@", "");
+            url = url.Replace("?", "");
+            url = url.Replace(".", "");
+            url = url.Replace("'", "");
+            url = url.Replace(",", "");
+            url = url.Replace("--", "-");
+            url = url.Replace("!", "");
+            string temp = File.ReadAllText("HTMLs/paginationremove.txt");
+            string[] chars = temp.Split(',');
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (chars[i].Length > 0)
+                {
+                    url = url.Replace(chars[i], "");
+                }
+                
+            }
+            urlWithouHost = url;
+            this.pageUrl += url;
+
+        }
+
+        private void setOutputCsvAttribute(string metaTile, string question)
+        {
+            
+            
+            string titleKeyword = findFromRule("Title");
+            string title;
+            if (titleKeyword == "*metatitle*")
+            {
+                title = metaTile;
+            }
+            else
+            {
+                var res = findByKey(titleKeyword);
+                title = clearAllTag(res[Util.rand.Next(0, res.Count)].value);
+            }
+            string metaKeywords = removeMeta(removeHtmlTag(question).Split(' '));
+            string metaDescription = "";
+            string[] questionWord = question.Split(' ');
+            if (questionWord.Length > 30)
+            {
+                for (int i = 0; i < 30; i++)
+                {
+                    metaDescription += questionWord[i] + " ";
+                }
+            }
+            else
+            {
+                metaDescription = question;
+            }
+            outputCsv.setAllAtribute(Util.systemName,"", title, metaKeywords, metaDescription,metaTile, urlWithouHost);
+        }
+
+        private string removeMeta(string[] metawords)
+        {
+            int len = metawords.Length > 30 ? 30 : metawords.Length;
+            List<string> newMeta = new List<string>();
+            string[] removeList = File.ReadAllText(@"HTMLs/metalist.txt").Split(',');
+            for (int i = 0; i < len; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < removeList.Length; j++)
+                {
+                    if (metawords[i] == removeList[j])
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found && metawords[i].Length > 0)
+                {
+                    newMeta.Add(metawords[i]);
+                }
+            }
+
+            string s = "";
+            int iter = 0;
+            for (; iter < newMeta.Count - 1; iter++)
+            {
+                s += newMeta[iter] + ", ";
+            }
+
+            s += newMeta[iter];
+            return s;
+        }
+
+        private string removeHtmlTag(string x)
+        {
+            string s = x;
+            string pattern = @"\<(.*?)\>";
+            //string pattern = @"a.e";
+            MatchCollection matches = Regex.Matches(x, pattern);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                s.Replace(matches[i].Value, "");
+            }
+            return s;
+        }
+
+        private string findFromRule(string name)
+        {
+            string s = "";
+            for (int i = 0; i < templateHeader.Length; i++)
+            {
+                if (name == templateHeader[i])
+                {
+                    s = ruleTemplate[i];
+                    break;
+                }
+            }
+            return s;
+        }
+
+       
+
+        public string getUrlWithoutHost()
+        {
+            return urlWithouHost;
+        }
+
+        public string getMarkup()
+        {
+            return markup.getMarkup();
+        }
+
+        public void addBanner()
+        {
+            this.page = page + banner;
+        }
+
+        public void addLocation(string fName)
+        {
+            this.fileName = fName;
+        }
+
+        public string getFileName()
+        {
+            return fileName;
         }
     }
 }

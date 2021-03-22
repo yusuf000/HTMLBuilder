@@ -23,5 +23,29 @@ namespace Automation_interface.model
 
             return false;
         }
+
+        public static List<Replacer> findUniqueList(List<Replacer> replacers)
+        {
+            List<Replacer> unique = new List<Replacer>();
+            for (int i = 0; i < replacers.Count; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < unique.Count; j++)
+                {
+                    if (replacers[i].equal(unique[j]))
+                    {
+                        found = true;
+                        break;;
+                    }
+                }
+
+                if (!found)
+                {
+                    unique.Add(replacers[i]);
+                }
+            }
+            return unique;
+        }
+
     }
 }

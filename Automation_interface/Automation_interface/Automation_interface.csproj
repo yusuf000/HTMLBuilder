@@ -33,8 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CsvHelper, Version=26.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.26.0.1\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
     <Reference Include="LumenWorks.Framework.IO">
       <HintPath>..\..\LumenWorks.Framework.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -72,7 +78,9 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="model\Answer.cs" />
+    <Compile Include="model\Markup.cs" />
     <Compile Include="model\MetaTitle.cs" />
+    <Compile Include="model\OutputCSV.cs" />
     <Compile Include="model\PageBuilder.cs" />
     <Compile Include="model\Question.cs" />
     <Compile Include="model\Replacer.cs" />
@@ -103,7 +111,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="UsedKeyword\usedKeyword.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="HTMLs\Banner.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\BodyHtmlCode_votes.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="HTMLs\BodyHtmlCode - Copy.txt" />
@@ -123,18 +134,31 @@
     <Content Include="HTMLs\MainHeader.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="HTMLs\metalist.txt" />
+    <Content Include="HTMLs\metalist.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="HTMLs\mykeywordpath.txt" />
     <Content Include="HTMLs\myRulespath.txt" />
     <Content Include="HTMLs\PageheaderHTMLCode.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="HTMLs\PageheaderHTMLCode2.txt" />
-    <Content Include="HTMLs\pagination_URL.txt" />
+    <Content Include="HTMLs\paginationremove.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\pagination_URL.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="HTMLs\postreplyback.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="HTMLs\post_replyhtmlcode.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\quoteHtml.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HTMLs\schema.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

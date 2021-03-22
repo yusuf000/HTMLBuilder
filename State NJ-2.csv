@@ -1,4 +1,4 @@
-*Can*,Can,,,
+*Can*,Can^ i,,,
 *Can*,May,,,
 *I*,I,your,,
 *I*,parents,their,,
@@ -58,10 +58,10 @@
 *answer#3#*,3Not now. *you1* can't *homeschool* in *state* in *month* but maybe in the future.,"0,5",,
 *answer#3#*,3<p>What case law exists regarding homeschooling in *state*? location1 v. Vaughn 44 N.J. 142 (1965): This case deals with the procedures to be employed when a parent/guardian is charged with failing to cause the child to attend school under the compulsory education law.  During the prosecution of a case against a parent/guardian for a violation of the compulsory education law@ the location1 needed only to allege a violation of the statute.  It was then incumbent upon the parent/guardian to introduce evidence showing that they are relying on one of the two statutory exceptions (day school or equivalent instruction elsewhere than at school).  Once there is such evidence in the case@ the burden of persuasion with respect to whether the education comes within the exception is with the location1.</p>,"0,5",,
 *answer#3#*,3Never. *you1* can't *homeschool* *daughter-variant* in *state* on *day* but you can homeschool on *day-other*.,"0,5",,
-,,"0,5",,
+,,,,
 do not use NJ,"<p>What does the existing law say regarding homeschooling in *location1*?</p><p> location1 v. Massa 95 N.J. Super 382 (1967): In court@ the parents were charged with failing to cause the child to attend school under the compulsory education law.  The only issue before the court was whether the parents were providing equivalent instruction.  The court held that the language under the compulsory education law@ providing for equivalent instruction elsewhere than at school@ required showing only academic equivalency and not equivalency of social development derived from group education.  In educating the child at home@ the parents were required to show only that “the instruction was academically equivalent to that provided in the local public school.” 
 
-</p>","0,5",,
+</p>",,,
 ,,,,
 *problem*,I have a problem,,,
 *probability*,This is a probability,,,
@@ -74,7 +74,11 @@ do not use NJ,"<p>What does the existing law say regarding homeschooling in *loc
 *metatitle#1#*,x*AmI* *allowed1* *homeschool* in *city1*?,,,
 *metatitle#2#*,2Question about homeschooling in *city1*,,,
 *metatitle#2#*,2Can *I* homeschool in *city1*,,,
-*metatitle#3#*,2*AmI* *allowed1* *homeschool* in *city1*?,,,
+*metatitle#2#*,2*AmI* *allowed1* *homeschool* in *city1*?,,,
+*metatitle#3#*,3 Question about homeschooling in *city1*,,,
+*metatitle#3#*,3 Can *I* homeschool in *city1*,,,
+*metatitle#3#*,3 *AmI* *allowed1* *homeschool* in *city1*?,,,
+,,,,
 ,,,,
 *intro*,Good day there!,,,
 *intro*,Good day!,,,
@@ -243,58 +247,58 @@ do not use NJ,"<p>What does the existing law say regarding homeschooling in *loc
 *repliergreeting*,Hello there!,,,
 ,,,,
 *repliername*,Lisa,Representative,United States,340
-*repliername*,Aaron,Representative,United States,540
-*repliername*,Frank,Representative,United States,489
-*repliername*,Susan,Representative,United States,700
-*repliername*,Deanne,Newbie,Alaska,3
+*repliername*,Aaron,Representative,New Jersey,540
+*repliername*,Frank,Representative,New Jersey,489
+*repliername*,Susan,Representative,New Jersey,700
+*repliername*,Deanne,Newbie,New Jersey,3
 *repliername*,Lilian,Newbie,Arizona,4
 *repliername*,Juliana,Newbie,Arkansas,1
-*repliername*,Aline,Newbie,California,4
-*repliername*,Luann,Newbie,Colorado,4
-*repliername*,Dominique,Newbie,Connecticut,6
-*repliername*,Socorro,Newbie,Delaware,3
-*repliername*,Rene,Newbie,Florida,3
-*repliername*,Martina,Newbie,Georgia,2
-*repliername*,Margo,Newbie,Hawaii,5
-*repliername*,Mavis,Newbie,Idaho,4
-*repliername*,Callie,Newbie,Illinois,3
-*repliername*,Bobbi,Newbie,Indiana,6
-*repliername*,Maritza,Newbie,Iowa,3
-*repliername*,Lucile,Newbie,Kansas,1
-*repliername*,Leanne,Newbie,Kentucky,3
-*repliername*,Jeannine,Newbie,Louisiana,4
-*repliername*,Deana,Newbie,Maine,5
-*repliername*,Aileen,Newbie,Maryland,5
-*repliername*,Lorie,Newbie,Massachusetts,4
-*repliername*,Ladonna,Newbie,Michigan,5
-*repliername*,Willa,Newbie,Minnesota,6
-*repliername*,Manuela,Newbie,Mississippi,8
-*repliername*,Gale,Newbie,Missouri,4
-*repliername*,Selma,Newbie,Montana,5
-*repliername*,Dolly,Newbie,Nebraska,3
-*repliername*,Sybil,Newbie,Nevada,2
-*repliername*,Abby,Newbie,New Hampshire,2
-*repliername*,Lara,Newbie,New Jersey,4
-*repliername*,Dale,Newbie,New Mexico,4
-*repliername*,Ivy,Newbie,New York,7
-*repliername*,Dee,Newbie,North Carolina,2
-*repliername*,Winnie,Newbie,North Dakota,3
-*repliername*,Marcy,Newbie,Ohio,6
-*repliername*,Luisa,Newbie,Oklahoma,5
-*repliername*,Jeri,Newbie,Oregon,4
-*repliername*,Magdalena,Newbie,Pennsylvania,4
-*repliername*,Ofelia,Newbie,Rhode Island,5
-*repliername*,Meagan,Newbie,South Carolina,3
-*repliername*,Audra,Newbie,South Dakota,5
-*repliername*,Matilda,Newbie,Tennessee,7
-*repliername*,Leila,Newbie,Texas,5
-*repliername*,Cornelia,Newbie,Utah,6
-*repliername*,Bianca,Newbie,Vermont,5
-*repliername*,Simone,Newbie,Virginia,5
-*repliername*,Bettye,Newbie,Washington,5
-*repliername*,Randi,Newbie,West Virginia,3
-*repliername*,Virgie,Newbie,Wisconsin,4
-*repliername*,Latisha,Newbie,Wyoming,2
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
 ,,,,
 *posterreplyback*,Thanks for the help *repliername*.,,,
 *posterreplyback*,Thanks for the help *repliername*!,,,

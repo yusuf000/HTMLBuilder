@@ -37,11 +37,13 @@ namespace Automation_interface
             this.ruleTemplets = new System.Windows.Forms.TextBox();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.Run = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.continuousTime = new System.Windows.Forms.CheckBox();
             this.percentage = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.isPaginator = new System.Windows.Forms.CheckBox();
+            this.outputAsTxt = new System.Windows.Forms.CheckBox();
+            this.continuousOutputCSV = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -66,7 +68,7 @@ namespace Automation_interface
             // SKT_button
             // 
             this.SKT_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SKT_button.Location = new System.Drawing.Point(43, 160);
+            this.SKT_button.Location = new System.Drawing.Point(43, 145);
             this.SKT_button.Name = "SKT_button";
             this.SKT_button.Size = new System.Drawing.Size(236, 56);
             this.SKT_button.TabIndex = 2;
@@ -78,7 +80,7 @@ namespace Automation_interface
             // keywordTemplets
             // 
             this.keywordTemplets.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.keywordTemplets.Location = new System.Drawing.Point(297, 175);
+            this.keywordTemplets.Location = new System.Drawing.Point(297, 160);
             this.keywordTemplets.Name = "keywordTemplets";
             this.keywordTemplets.Size = new System.Drawing.Size(221, 30);
             this.keywordTemplets.TabIndex = 3;
@@ -86,7 +88,7 @@ namespace Automation_interface
             // SRT_button
             // 
             this.SRT_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SRT_button.Location = new System.Drawing.Point(43, 240);
+            this.SRT_button.Location = new System.Drawing.Point(43, 225);
             this.SRT_button.Name = "SRT_button";
             this.SRT_button.Size = new System.Drawing.Size(236, 56);
             this.SRT_button.TabIndex = 4;
@@ -98,7 +100,7 @@ namespace Automation_interface
             // ruleTemplets
             // 
             this.ruleTemplets.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ruleTemplets.Location = new System.Drawing.Point(297, 253);
+            this.ruleTemplets.Location = new System.Drawing.Point(297, 238);
             this.ruleTemplets.Name = "ruleTemplets";
             this.ruleTemplets.Size = new System.Drawing.Size(221, 30);
             this.ruleTemplets.TabIndex = 5;
@@ -106,7 +108,7 @@ namespace Automation_interface
             // dateTimePicker2
             // 
             this.dateTimePicker2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dateTimePicker2.Location = new System.Drawing.Point(43, 322);
+            this.dateTimePicker2.Location = new System.Drawing.Point(43, 304);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.Size = new System.Drawing.Size(475, 30);
             this.dateTimePicker2.TabIndex = 7;
@@ -114,7 +116,7 @@ namespace Automation_interface
             // Run
             // 
             this.Run.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Run.Location = new System.Drawing.Point(379, 429);
+            this.Run.Location = new System.Drawing.Point(379, 463);
             this.Run.Name = "Run";
             this.Run.Size = new System.Drawing.Size(139, 44);
             this.Run.TabIndex = 8;
@@ -122,20 +124,11 @@ namespace Automation_interface
             this.Run.UseVisualStyleBackColor = true;
             this.Run.Click += new System.EventHandler(this.button1_Click);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(40, 458);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(41, 15);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "label2";
-            // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.checkBox1.Location = new System.Drawing.Point(43, 372);
+            this.checkBox1.Location = new System.Drawing.Point(43, 365);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(82, 29);
             this.checkBox1.TabIndex = 10;
@@ -146,7 +139,7 @@ namespace Automation_interface
             // 
             this.continuousTime.AutoSize = true;
             this.continuousTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.continuousTime.Location = new System.Drawing.Point(43, 407);
+            this.continuousTime.Location = new System.Drawing.Point(43, 400);
             this.continuousTime.Name = "continuousTime";
             this.continuousTime.Size = new System.Drawing.Size(180, 29);
             this.continuousTime.TabIndex = 11;
@@ -174,16 +167,53 @@ namespace Automation_interface
             this.label3.TabIndex = 12;
             this.label3.Text = "NON-mandatory keyword probability %";
             // 
+            // isPaginator
+            // 
+            this.isPaginator.AutoSize = true;
+            this.isPaginator.Checked = true;
+            this.isPaginator.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.isPaginator.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.isPaginator.Location = new System.Drawing.Point(43, 431);
+            this.isPaginator.Name = "isPaginator";
+            this.isPaginator.Size = new System.Drawing.Size(114, 29);
+            this.isPaginator.TabIndex = 14;
+            this.isPaginator.Text = "Paginator";
+            this.isPaginator.UseVisualStyleBackColor = true;
+            // 
+            // outputAsTxt
+            // 
+            this.outputAsTxt.AutoSize = true;
+            this.outputAsTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.outputAsTxt.Location = new System.Drawing.Point(43, 466);
+            this.outputAsTxt.Name = "outputAsTxt";
+            this.outputAsTxt.Size = new System.Drawing.Size(146, 29);
+            this.outputAsTxt.TabIndex = 15;
+            this.outputAsTxt.Text = "Output as .txt";
+            this.outputAsTxt.UseVisualStyleBackColor = true;
+            // 
+            // continuousOutputCSV
+            // 
+            this.continuousOutputCSV.AutoSize = true;
+            this.continuousOutputCSV.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.continuousOutputCSV.Location = new System.Drawing.Point(43, 504);
+            this.continuousOutputCSV.Name = "continuousOutputCSV";
+            this.continuousOutputCSV.Size = new System.Drawing.Size(243, 29);
+            this.continuousOutputCSV.TabIndex = 16;
+            this.continuousOutputCSV.Text = "Continuous Output CSV";
+            this.continuousOutputCSV.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(566, 545);
+            this.Controls.Add(this.continuousOutputCSV);
+            this.Controls.Add(this.outputAsTxt);
+            this.Controls.Add(this.isPaginator);
             this.Controls.Add(this.percentage);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.continuousTime);
             this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.Run);
             this.Controls.Add(this.dateTimePicker2);
             this.Controls.Add(this.ruleTemplets);
@@ -212,11 +242,13 @@ namespace Automation_interface
         private System.Windows.Forms.TextBox ruleTemplets;
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Button Run;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.CheckBox continuousTime;
         private System.Windows.Forms.TextBox percentage;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox isPaginator;
+        private System.Windows.Forms.CheckBox outputAsTxt;
+        private System.Windows.Forms.CheckBox continuousOutputCSV;
     }
 }
 
