@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LumenWorks.Framework.IO.Csv;
 using CsvHelper;
+using OfficeOpenXml;
 using CsvReader = LumenWorks.Framework.IO.Csv.CsvReader;
 
 namespace Automation_interface.model
@@ -58,7 +59,113 @@ namespace Automation_interface.model
         public static KeyWords getRule(string fileName, bool isVote)
         {
             KeyWords rule = new KeyWords();
-            using (var rd = new CsvReader(new StreamReader(fileName), false))
+            FileInfo intialInfo = new FileInfo(fileName);
+            var excel = new ExcelPackage(intialInfo);
+            foreach (ExcelWorksheet workSheet in excel.Workbook.Worksheets)
+            {
+                var start = workSheet.Dimension.Start;
+                var end = workSheet.Dimension.End;
+                for (int row = start.Row; row <= end.Row; row++)
+                {
+                    var rd = getRow(workSheet, start, end, row);
+                    
+                    
+                    if (rd.Count() > 1)
+                    {
+                        if (rd[0].Contains("question#"))
+                        {
+                            string pattern = @"\#(.*?)\#";
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
+                            int serial = Int32.Parse(matches[0].Value.Substring(1, (matches[0].Value.Length - 2)));
+                            rule.questions.Add(new Question(rd[1].Replace("^", ","), serial));
+                        }
+                        else if (rd[0].Contains("metatitle"))
+                        {
+                            string pattern = @"\#(.*?)\#";
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
+                            int serial = Int32.Parse(matches[0].Value.Substring(1, (matches[0].Value.Length - 2)));
+                            rule.metaTitles.Add(new MetaTitle(rd[1].Replace("^", ","), serial));
+                        }
+                        else if (rd[0].Contains("answer#"))
+                        {
+                            string pattern = @"\#(.*?)\#";
+                            MatchCollection matches = Regex.Matches(rd[0], pattern);
+                            bool accepted = false;
+                            string val = matches[0].Value;
+                            if (matches[0].Value.Contains("$"))
+                            {
+                                accepted = isVote;
+                                val = matches[0].Value.Replace("$", "");
+                            }
+
+                            int serial = Int32.Parse(val.Substring(1, (val.Length - 2)));
+                            Answer ans = new Answer(rd[1].Replace("^", ","), serial, accepted);
+                            if (isVote)
+                            {
+                                try
+                                {
+                                    string temp = rd[2];
+                                    string[] range = temp.Split(',');
+                                    int low = Int32.Parse(range[0]);
+                                    int high = Int32.Parse(range[1]);
+                                    ans.voteCount = rand.Next(low, high + 1);
+                                }
+                                catch (Exception e)
+                                {
+                                    throw new Exception("Vote count missing");
+                                }
+                            }
+                            rule.answers.Add(ans);
+                        }
+                        else
+                        {
+                            Replacer re = new Replacer();
+                            re.tagInhtml = rd[0].Trim().ToLower();
+                            if (re.tagInhtml.Contains("!"))
+                            {
+                                re.tagInhtml = re.tagInhtml.Substring(1, re.tagInhtml.Length - 2);
+                                re.isOnlyOncesUse = true;
+                            }
+                            re.value = rd[1].Replace("^", ",");
+                            if (rd.Length > 2)
+                            {
+                                for (int i = 2; i < rd.Length; i++)
+                                {
+                                    if (rd[i] == null)
+                                        continue;
+                                    string s = rd[i].Trim();
+                                    if (s.Length > 0)
+                                        re.variant.Add(s);
+                                }
+                            }
+                            if (isAvailableKeyWordValue(re))
+                            {
+                                rule.replacers.Add(re);
+                            }
+                            else
+                            {
+                                usedForThisPage.Add(re);
+                            }
+
+                            if (re.tagInhtml.Contains("*repliername*") || re.tagInhtml.Contains("*postername*"))
+                            {
+                                if (!posterPostCount.ContainsKey(re.value))
+                                {
+                                    posterPostCount[re.value] = Int32.Parse(re.variant[2]);
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+                
+            }
+             
+        
+            
+            
+            
+            /*using (var rd = new CsvReader(new StreamReader(fileName), false))
             {
                 while (rd.ReadNextRecord())
                 {
@@ -147,8 +254,22 @@ namespace Automation_interface.model
                         }
                     }
                 }
-            }
+            }*/
             return rule;
+        }
+
+        private static string[] getRow(ExcelWorksheet workSheet, ExcelCellAddress start, ExcelCellAddress end,  int row)
+        {
+            List<string> list = new List<string>();
+            for (int i = start.Column; i <= end.Column; i++)
+            {
+                Object cellValue = workSheet.Cells[row, i].Value;
+                if (cellValue != null)
+                {
+                    list.Add(workSheet.Cells[row, i].Text);
+                }
+            }
+            return list.ToArray();
         }
 
         private static bool isAvailableKeyWordValue(Replacer rep)
@@ -299,6 +420,55 @@ namespace Automation_interface.model
             paginator += "</ul></ul></nav>";
             return paginator;
 
+        }
+
+        public static List<List<string>> getRules(string fileName)
+        {
+            List<List<string>> rules = new List<List<string>>();
+            FileInfo intialInfo = new FileInfo(fileName);
+            var excel = new ExcelPackage(intialInfo);
+            foreach (ExcelWorksheet workSheet in excel.Workbook.Worksheets)
+            {
+                for (int i = workSheet.Dimension.Start.Row; i <= workSheet.Dimension.End.Row; i++)
+                {
+                    List<string> rule = new List<string>();
+                    for (int j = workSheet.Dimension.Start.Column; j <= workSheet.Dimension.End.Column; j++)
+                    {
+                        object cellValue = workSheet.Cells[i, j].Value;
+                        if (cellValue == null)
+                        {
+                            rule.Add("");
+                        }
+                        else
+                        {
+                            rule.Add((string)cellValue);
+                        }
+                    }
+                    rules.Add(rule);
+                }
+            }
+
+            /*foreach (var worksheet in Workbook.Worksheets(fileName))
+            {
+                foreach (var rd in worksheet.Rows)
+                {
+                    List<string> rule = new List<string>();
+                    foreach (var cell in rd.Cells)
+                    {
+                        if (cell == null)
+                        {
+                            rule.Add("");
+                        }
+                        else
+                        {
+                            rule.Add(cell.Text);
+                        }
+                    }
+                    rules.Add(rule);
+                }
+            }*/
+
+            return rules;
         }
 
         public static void setSystemName(string[] headers, string[] rules)

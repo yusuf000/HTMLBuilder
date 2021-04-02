@@ -44,9 +44,11 @@ namespace Automation_interface.model
             var writer = new StreamWriter(mem);
             var csvWriter = new CsvWriter(writer, CultureInfo.CurrentCulture);
             bool addHeader = true;
+            int counter = 1;
             if (Util.continuousOutputCSV && File.Exists(@"output.csv"))
             {
-                if (File.ReadAllText(@"output.csv").Length > 0)
+                counter = File.ReadLines(@"output.csv").Count();
+                if (counter > 0)
                 {
                     addHeader = false;
                 }
@@ -63,7 +65,7 @@ namespace Automation_interface.model
             string directory = Directory.GetCurrentDirectory();
             for (int i = 0; i < pages.Count; i++)
             {
-                csvWriter.WriteField(pages[i].outputCsv.systemName + " - " + (i+1));
+                csvWriter.WriteField(pages[i].outputCsv.systemName + " - " + (counter++));
                 csvWriter.WriteField(pages[i].outputCsv.includeInSiteMap);
                 csvWriter.WriteField(pages[i].outputCsv.title);
                 csvWriter.WriteField(directory + "\\" +pages[i].getFileName());

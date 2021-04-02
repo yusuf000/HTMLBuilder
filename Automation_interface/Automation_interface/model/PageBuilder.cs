@@ -110,9 +110,15 @@ namespace Automation_interface.model
                             i++;
                             continue;
                         }
-                        var rc = findByKey(templete[i]);
-                        question += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ", true);
-                        i++;
+
+                        if (templete[i] != "")
+                        {
+                            var rc = findByKey(templete[i]);
+                            question += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ", true);
+                            i++;
+                        }
+
+                        
                     }
                     if (!templete[i].Contains("random"))
                     {
@@ -145,7 +151,7 @@ namespace Automation_interface.model
                     while (headers[i + 1] == "Poster")
                     {
                         i++;
-                        if (!templete[i].Contains("*metatitle*"))
+                        if (!templete[i].Contains("*metatitle*") && templete[i] != "")
                         {
                             if (templete[i].Contains("%"))
                             {
@@ -189,7 +195,7 @@ namespace Automation_interface.model
                             i++;
                             continue;
                         }
-                        else if (templete[i].Contains("%"))
+                        if (templete[i].Contains("%"))
                         {
                             if (isYes())
                             {
@@ -199,10 +205,13 @@ namespace Automation_interface.model
                             }
                             i++;
                             continue;
+                        } 
+                        if (templete[i] != "")
+                        {
+                            var rc = findByKey(templete[i]);
+                            answer += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ");
+                            i++;
                         }
-                        var rc = findByKey(templete[i]);
-                        answer += clearAllTag(rc[Util.rand.Next(0, rc.Count)].value + " ");
-                        i++;
                     }
 
                     int votes = 0;
@@ -211,7 +220,7 @@ namespace Automation_interface.model
                     while (headers[i + 1] == "Reply")
                     {
                         i++;
-                        if (!templete[i].Contains("*metatitle*"))
+                        if (!templete[i].Contains("*metatitle*") && templete[i] != "")
                         {
                             if (templete[i].Contains("%"))
                             {
@@ -231,10 +240,10 @@ namespace Automation_interface.model
                     createAnswer(answer, metaTitle, votes, isQuote);
                     answerCount++;
                 }
-                else if (templete[i] == "*posterreplyback*")
+                else if (templete[i].Contains("*posterreplyback*"))
                 {
                     bool doReply = false;
-                    if (headers[i].Contains("%"))
+                    if (templete[i].Contains("%"))
                     {
                         if (isYes())
                         {
@@ -254,10 +263,10 @@ namespace Automation_interface.model
                         canReplierreplyback = true;
                     }
                 }
-                else if (templete[i] == "*replierreplyback*")
+                else if (templete[i].Contains("*replierreplyback*"))
                 {
                     bool doReply = false;
-                    if (headers[i].Contains("%"))
+                    if (templete[i].Contains("%"))
                     {
                         if (isYes())
                         {
@@ -579,6 +588,12 @@ namespace Automation_interface.model
                             }
                             re = res[Util.rand.Next(0, res.Count)];
                         }
+
+                        if (re.variant.Count < 1)
+                        {
+                            throw new Exception(key + " variant is not present in rule file please check carefully.");
+                        }
+
                         var value = re.variant[Util.rand.Next(0, re.variant.Count)];
                         text = text.Replace(matches[i].Value, value);
                         if (isQuestion)

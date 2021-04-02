@@ -51,14 +51,14 @@ namespace Automation_interface
                 Util.allPagesOfProgram = new List<PageBuilder>();
                 string keyWordTempletePath = keywordTemplets.Text.Trim();
                 string ruleTempletePath = ruleTemplets.Text.Trim();
-                List<List<string>> rules = new List<List<string>>();
+                
                 string extention = "html";
                 if (outputAsTxt.Checked)
                 {
                     extention = "txt";
                 }
-
-                using (var rd = new CsvReader(new StreamReader(ruleTempletePath), false))
+                List<List<string>> rules = Util.getRules(ruleTempletePath);
+                /*using (var rd = new CsvReader(new StreamReader(ruleTempletePath), false))
                 {
                     while (rd.ReadNextRecord())
                     {
@@ -70,7 +70,7 @@ namespace Automation_interface
                         }
                         rules.Add(list);
                     }
-                }
+                }*/
 
                 Util.setSystemName(rules[0].ToArray(), rules[1].ToArray());
                 Util.continuousOutputCSV = continuousOutputCSV.Checked;

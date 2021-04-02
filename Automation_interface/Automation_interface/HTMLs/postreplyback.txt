@@ -50,7 +50,7 @@ class="content"><blockquote style="background-color: #e2f2ff ;background:#e2f2ff
 
 style="background:url('http://topmedicalusa.com/Content/Images/uploaded/icons_button.png') no-repeat; background-position: 
 
--122px 0px; width: 12px; display: inline-block;">&nbsp;</span> </a><*postername1*>  &nbsp;wrote:</cite><br><i><*question#></i></div></blockquote><br><br><br><*posterreplyback*></div>
+-122px 0px; width: 12px; display: inline-block;">&nbsp;</span> </a><*postername1*>  &nbsp;wrote:</cite><br><i><*question#></i></div></blockquote><br><br><br><font color="black" face="Lucida Grande, Trebuchet MS, Verdana, Helvetica, Arial,sans-serif" font-size: 13px><*posterreplyback*></div>
 </div>
 </div>
 <div style="clear: both; height: 11px; text-align: right;"><a style="background: url
